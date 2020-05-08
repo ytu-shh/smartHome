@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ssm.server.mapper.ServerMapper" >
+	<insert id="insertTemperature" parameterType="map">
+		INSERT INTO temperature (
+			temperatureId,
+			temperatureDeviceId,
+			temperatureValue,
+			temperatureTime
+		)VALUES(
+			#{uuid},
+			#{deviceId},
+			#{temperatureValue},
+			#{time}
+		)
+	</insert>
+	
+	<insert id="insertHumidity" parameterType="map">
+		INSERT INTO humidity (
+			humidityId,
+			humidityDeviceId,
+			humidityValue,
+			humidityTime
+		)VALUES(
+			#{uuid},
+			#{deviceId},
+			#{humidityValue},
+			#{time}
+		)
+	</insert>
+	
+	<select id="queryDeviceValueByHomeId" parameterType="string" resultType="map">
+		SELECT
+			deviceId,
+			deviceName,
+			deviceType,
+			CASE deviceType
+				WHEN 'temperature' THEN
+					(
+						SELECT
+							temperatureValue
+						FROM
+							temperature
+						WHERE
+							temperatureDeviceId = deviceId
+						ORDER BY
+							temperatureTime DESC
+						LIMIT 1
+					)
+				WHEN 'humidity' THEN
+					(
+						SELECT
+							humidityValue
+						FROM
+							humidity
+						WHERE
+							humidityDeviceId = deviceId
+						ORDER BY
+							humidityTime DESC
+						LIMIT 1
+					)
+				WHEN 'airConditioner' THEN
+					(
+						SELECT
+							airConditionerStatus
+						FROM
+							airConditioner
+						WHERE
+							airConditionerDeviceId = deviceId
+						ORDER BY
+							airConditionerUpdateTime DESC
+						LIMIT 1
+					)
+				WHEN 'lamp' THEN
+					(
+						SELECT
+							lampStatus
+						FROM
+							lamp
+						WHERE
+							lampDeviceId = deviceId
+						ORDER BY
+							lampUpadteTime DESC
+						LIMIT 1
+					)
+				WHEN 'aiLamp' THEN
+					(
+						SELECT
+							lampLighting
+						FROM
+							lamp
+						WHERE
+							lampDeviceId = deviceId
+						ORDER BY
+							lampUpadteTime DESC
+						LIMIT 1
+					)
+				WHEN 'door' THEN
+					(
+						SELECT
+							doorStatus
+						FROM
+							door
+						WHERE
+							doorDeviceId = deviceId
+						ORDER BY
+							doorUpdateTime DESC
+						LIMIT 1
+					)ELSE '' END AS deviceValue,
+			CASE deviceType
+				WHEN 'airConditioner' THEN
+				(
+						SELECT
+							airConditionerMode
+						FROM
+							airConditioner
+						WHERE
+							airConditionerDeviceId = deviceId
+						ORDER BY
+							airConditionerUpdateTime DESC
+						LIMIT 1
+				) ELSE '' END AS airConditionerMode,
+			CASE deviceType
+				WHEN 'airConditioner' THEN
+				(
+						SELECT
+							airConditionerTemperature
+						FROM
+							airConditioner
+						WHERE
+							airConditionerDeviceId = deviceId
+						ORDER BY
+							airConditionerUpdateTime DESC
+						LIMIT 1
+				) ELSE '' END AS airConditionerTemperature,
+			CASE deviceType
+				WHEN 'airConditioner' THEN
+				(
+						SELECT
+							airConditionerWindSpeed
+						FROM
+							airConditioner
+						WHERE
+							airConditionerDeviceId = deviceId
+						ORDER BY
+							airConditionerUpdateTime DESC
+						LIMIT 1
+				) ELSE '' END AS airConditionerWindSpeed
+		FROM
+			device
+		WHERE
+			deviceHomeId = #{homeId}
+	</select>
+	
+	<select id="queryHistoryTemperature" resultType="map">
+		SELECT * FROM (
+			SELECT
+				deviceName,
+				temperatureValue,
+				temperatureTime
+			FROM
+				temperature
+			LEFT JOIN device ON deviceId = temperatureDeviceId
+			WHERE
+				temperatureDeviceId = #{temperatureDeviceId}
+			ORDER BY temperatureTime DESC LIMIT 20) T
+		ORDER BY temperatureTime
+	</select>
+	
+	<select id="queryHistoryHumidity" resultType="map">
+		SELECT * FROM (
+			SELECT
+				deviceName,
+				humidityValue,
+				humidityTime
+			FROM
+				humidity
+			LEFT JOIN device ON deviceId = humidityDeviceId
+			WHERE
+				humidityDeviceId = #{humidityDeviceId}
+			ORDER BY humidityTime DESC LIMIT 20) T
+		ORDER BY humidityTime
+	</select>
+	
+</mapper>

@@ -1,0 +1,40 @@
+/*当前未拖动进度条显示样式 */
+.barProgress {
+	display: inline-block;
+	width: 200px;
+	height: 10px;
+	background: #ddd;
+	border-radius: 4px;
+	position: relative;
+}
+
+/*拖动按钮样式 */
+.oldBar {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border-radius: 50% 50%;
+	background: #ffffff;
+	position: absolute;
+	margin-top: -3px;
+	cursor: pointer;
+	box-shadow: 0px 0px 3px #177ad8;
+}
+
+/*拖动后进度条样式*/
+.newBar {
+	width: 0px;
+	height: 10px;
+	background-color: #2d8eff;
+	border-radius: 4px;
+}
+
+/*显示拖动百分数的input样式*/
+.barInput {
+	border: 0px;
+	width: 40px;
+	font-size: 16px;
+	font-weight: 600;
+	text-align: center;
+	vertical-align: top;
+}
